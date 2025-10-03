@@ -1,0 +1,63 @@
+services:
+  api:
+    restart: always
+    build:
+      context: .
+      dockerfile: ./docker/local/express/Dockerfile
+    volumes:
+      - .:/app # <-- Fixed the volumes issue here
+    depends_on:
+      - mongodb
+    ports:
+      - "1997:1997"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      MONGO_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb
+      FORCE_COLOR: 1
+    networks:
+      - invoice
+  mongodb:
+    image: mongo:5.0.6-focal
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    volumes:
+      - type: bind
+        target: /data/db
+      - mongodb_data:/data/db
+    networks:
+      - invoice
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    depends_on:
+      - mongodb
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD}
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin@123
+    networks:
+      - invoice
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.0
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - invoice
+
+networks:
+  invoice:
+    driver: bridge
+
+volumes:
+  mongodb_data:
