@@ -10,8 +10,8 @@ services:
       - .:/app
     depends_on:
       - mongodb
-    ports:
-      - "1997:1997"
+    # ports:
+    #   - "1997:1997"
     environment:
       NODE_ENV: ${NODE_ENV}
       MONGO_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb
@@ -19,6 +19,17 @@ services:
     networks:
       - invoice # Connecting to the 'invoice' network
 
+  client:
+    build:
+      context: ./client
+      dockerfile: ./docker/local/Dockerfile
+    restart: on-failure
+    volumes:
+      - ./client/app
+      - /app/node_modules
+    networks:
+      - invoice
+      
   mongodb:
     image: mongo:5.0.6-focal
     restart: always
@@ -32,7 +43,7 @@ services:
         target: /data/db
       - mongodb_data:/data/db
     networks:
-      - invoice # Connecting to the 'invoice' network
+      - invoice
 
   mongo-express:
     image: mongo-express
