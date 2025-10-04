@@ -5,7 +5,7 @@ up:
 	docker compose -f local.yaml up -d
 
 down:
-	compose compose -f local.yaml down
+	docker compose -f local.yaml down
 
 down-v:
 	docker compose -f local.yaml down -v
