@@ -1,4 +1,13 @@
 import "dotenv/config";
 import nodemailer from "nodemailer";
 
-let transport;
+let transporter;
+if (process.env.NODE_ENV === "development") {
+  transporter = nodemailer.createTransport({
+    host: "mailhog",
+    port: 1025,
+  });
+} else if (process.env.NODE_ENV === "production") {
+  // TODO: config for production
+}
+export default transporter;
