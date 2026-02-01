@@ -6,7 +6,7 @@ import morgan from "morgan";
 import connectionToDB from "./config/connectDB.js";
 import { morganMiddleware, systemLogs } from "./utils/Logger.js";
 import mongoSanitize from "express-mongo-sanitize";
-
+import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 await connectionToDB();
 const app = express();
 
@@ -24,12 +24,15 @@ app.get("/api/v1/test", (req, res) => {
   res.json({ Hi: "Welcome to the invoice app" });
 });
 
+app.use(notFound);
+app.use(errorHandler);
+
 const PORT = process.env.PORT || 1997;
 app.listen(PORT, () => {
   console.log(
-    `server is running in ${process.env.NODE_ENV} mode on port ${PORT}`
+    `server is running in ${process.env.NODE_ENV} mode on port ${PORT}`,
   );
   systemLogs.info(
-    `Server is running in ${process.env.NODE_ENV} mode on port ${process.env.PORT}`
+    `Server is running in ${process.env.NODE_ENV} mode on port ${process.env.PORT}`,
   );
 });
