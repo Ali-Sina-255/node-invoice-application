@@ -1,9 +1,11 @@
 import bcrypt from "bcryptjs";
 import "dotenv/config";
 
-import mongoose, { MongooseError } from "mongoose";
+import mongoose from "mongoose";
 import validator from "validator";
-import { USER } from "../constants";
+
+import { USER } from "../constants/index.js";
+
 const { Schema } = mongoose;
 
 const userSchema = new Schema(
@@ -96,7 +98,7 @@ const userSchema = new Schema(
     },
     refreshToken: [String],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.pre("save", async function (next) {

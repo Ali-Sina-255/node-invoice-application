@@ -7,18 +7,21 @@ const VerifyResetTokenSchema = new Schema({
     required: true,
     ref: "User",
   },
-  token: { type: String, require: true },
-  createAT: {
-    type: date,
+  token: {
+    type: String,
+    required: true, // fix typo: was 'require'
+  },
+  createdAt: {
+    type: Date, // ✅ Correct type
     required: true,
-    default: Date.now(),
-    expire: 900,
+    default: Date.now, // ✅ pass the function, not Date.now()
+    expires: 900, // ✅ token will auto-delete after 900 seconds (15 min)
   },
 });
 
 const VerifyResetToken = mongoose.model(
   "VerifyResetToken",
-  VerifyResetTokenSchema
+  VerifyResetTokenSchema,
 );
 
 export default VerifyResetToken;

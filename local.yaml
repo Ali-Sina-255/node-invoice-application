@@ -6,16 +6,22 @@ services:
       dockerfile: ./docker/local/express/Dockerfile
     volumes:
       - .:/app
+      - /app/node_modules
     depends_on:
       - mongodb
-    # ports:
-    #   - "1997:1997"
     environment:
       NODE_ENV: ${NODE_ENV}
-      MONGO_URI: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb
+      PORT: ${PORT}
+      MONGO_URL: mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${DB_NAME}?authSource=admin
+      JWT_ACCESS_SECRET_KEY: ${JWT_ACCESS_SECRET_KEY}
+      JWT_REFRESH_SECRET_KEY: ${JWT_REFRESH_SECRET_KEY}
+      SENDER_EMAIL: ${SENDER_EMAIL}
+      DOMAIN: ${DOMAIN}
       FORCE_COLOR: 1
     networks:
-      - invoice # Connecting to the 'invoice' network
+      - invoice
+    ports:
+      - "${PORT}:${PORT}"
 
   client:
     build:
@@ -23,22 +29,28 @@ services:
       dockerfile: ./docker/local/Dockerfile
     restart: on-failure
     volumes:
-      - ./client/app
+      - ./client:/app
       - /app/node_modules
+    environment:
+      REACT_APP_API_URL: http://localhost:${PORT}/api/v1
     networks:
       - invoice
+    ports:
+      - "3000:3000"
 
   mongodb:
     image: mongo:5.0.6-focal
+    container_name: invoice-mongo
     restart: always
+
     ports:
-      - "27017:27017"
+      - "11025:1025" # SMTP
+      - "18025:8025"
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_NAME}
     volumes:
-      - type: bind
-        target: /data/db
       - mongodb_data:/data/db
     networks:
       - invoice
@@ -57,10 +69,11 @@ services:
       ME_CONFIG_BASICAUTH_USERNAME: admin
       ME_CONFIG_BASICAUTH_PASSWORD: admin@123
     networks:
-      - invoice # Connecting to the 'invoice' network
+      - invoice
 
   mailhog:
-    image: mailhog/mailhog:v1.0.0
+    image: mailhog/mailhog:latest
+    restart: always
     ports:
       - "8025:8025"
       - "1025:1025"

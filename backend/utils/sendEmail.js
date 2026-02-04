@@ -3,8 +3,10 @@ import fs from "fs";
 import Handlebars from "handlebars";
 import path from "path";
 import { fileURLToPath } from "url";
-import transporter from "../helpers/emailTransport";
-import { systemLog } from "./Logger";
+import transporter from "../helpers/emailTransport.js";
+// import emailTransport from "../helpers/emailTransport.js";/
+
+import { systemLogs } from "./Logger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,10 +21,10 @@ const sendEmail = async (email, subject, payload, template) => {
     subject: subject,
     html: compiledTemplate(payload),
   };
-  await transporter.sendEmail(emailOptional);
+  await transporter.sendMail(emailOptional);
   try {
   } catch (error) {
-    systemLog.error(`Email not send ${email}`);
+    systemLogs.error(`Email not send ${email}`);
   }
 };
 

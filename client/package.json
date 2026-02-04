@@ -2,6 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "cra-template-redux": "2.0.0",
     "react": "^19.2.0",

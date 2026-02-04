@@ -1,4 +1,4 @@
-import User from "../models/userModel";
+import User from "../models/userModel.js";
 
 import asyncHandler from "express-async-handler";
 const checkAuth = asyncHandler(async (req, res, next) => {

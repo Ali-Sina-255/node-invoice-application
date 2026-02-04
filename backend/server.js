@@ -3,37 +3,57 @@ import cookieParser from "cookie-parser";
 import "dotenv/config";
 import express from "express";
 import morgan from "morgan";
+import mongoSanitize from "express-mongo-sanitize";
+
 import connectionToDB from "./config/connectDB.js";
 import { morganMiddleware, systemLogs } from "./utils/Logger.js";
-import mongoSanitize from "express-mongo-sanitize";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
-await connectionToDB();
-const app = express();
 
-if (process.env.NODE_ENV == "development") {
-  app.use(morgan("dev"));
-}
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+import routes from "./routes/index.js";
 
-app.use(cookieParser());
-app.use(mongoSanitize());
-app.use(morganMiddleware);
+const startServer = async () => {
+  try {
+    await connectionToDB();
+    console.log(chalk.green("✅ Database connected successfully"));
 
-app.get("/api/v1/test", (req, res) => {
-  res.json({ Hi: "Welcome to the invoice app" });
-});
+    const app = express();
 
-app.use(notFound);
-app.use(errorHandler);
+    if (process.env.NODE_ENV === "development") {
+      app.use(morgan("dev"));
+    }
 
-const PORT = process.env.PORT || 1997;
-app.listen(PORT, () => {
-  console.log(
-    `server is running in ${process.env.NODE_ENV} mode on port ${PORT}`,
-  );
-  systemLogs.info(
-    `Server is running in ${process.env.NODE_ENV} mode on port ${process.env.PORT}`,
-  );
-});
-Ali - Sina - 255;
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: false }));
+    app.use(cookieParser());
+    app.use(mongoSanitize());
+    app.use(morganMiddleware);
+
+    app.get("/api/v1/test", (req, res) => {
+      res.json({ message: "Welcome to the invoice app" });
+    });
+
+    // Routes
+    app.use("/api/v1/auth", routes.authRoutes);
+    app.use("/api/v1/invoice", routes.invoiceRoutes); // optional
+
+    // Error handling
+    app.use(notFound);
+    app.use(errorHandler);
+
+    const PORT = process.env.PORT || 1997;
+    app.listen(PORT, () => {
+      console.log(
+        chalk.blue(
+          `🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`,
+        ),
+      );
+      systemLogs.info(`Server running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error(chalk.red("❌ Failed to start server:"), err);
+    systemLogs.error(`Server failed to start: ${err.message}`);
+    process.exit(1);
+  }
+};
+
+startServer();
