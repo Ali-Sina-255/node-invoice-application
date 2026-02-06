@@ -21,7 +21,7 @@ services:
     networks:
       - invoice
     expose:
-      - "3000" # internal only
+      - "3000"
 
   client:
     build:

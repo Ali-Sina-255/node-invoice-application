@@ -8,9 +8,11 @@ import mongoSanitize from "express-mongo-sanitize";
 import connectionToDB from "./config/connectDB.js";
 import { morganMiddleware, systemLogs } from "./utils/Logger.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
+// import { userRote } from "./routes/userRoutes.js";
 
-import routes from "./routes/index.js";
-
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import { apiLimiter } from "./middleware/apiLimiter.js";
 const startServer = async () => {
   try {
     await connectionToDB();
@@ -33,8 +35,9 @@ const startServer = async () => {
     });
 
     // Routes
-    app.use("/api/v1/auth", routes.authRoutes);
-    app.use("/api/v1/invoice", routes.invoiceRoutes); // optional
+    app.use("/api/v1/auth", authRoutes);
+    // user profile routes
+    app.use("/api/v1/user", apiLimiter, userRoutes);
 
     // Error handling
     app.use(notFound);
