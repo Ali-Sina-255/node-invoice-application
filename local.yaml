@@ -22,7 +22,7 @@ services:
       - invoice
     expose:
       - "3000"
-
+  
   client:
     build:
       context: ./client
